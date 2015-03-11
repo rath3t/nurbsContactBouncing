@@ -12,7 +12,7 @@
 <script>
 	threeSetup(); 
     var gravity = -9.81;
-    var e = 1.5;
+    var e = 1;
     var transformation = function(angle,vector){
         var transformationmatrix = [Math.cos(angle), Math.sin(angle), -Math.sin(angle),Math.cos(angle)];
         var vector_new = [transformationmatrix[0]*vector[0]+transformationmatrix[1]*vector[1],transformationmatrix[2]*vector[0]+transformationmatrix[3]*vector[1],0];
@@ -163,25 +163,33 @@ var update = function() {
     ball1.gravity();
   };
 
-  var render = function() {
+  var render_ball = function() {
     ball1._draw();
-    threeRender();
+    
   };
 
   function frame() {
     now   = timestamp();
     tick    = 1/30;
-    
+    //requestAnimationFrame(frame);
     last = now;
-    init(); 
-    render();
-    update(tick);
     
-    requestAnimationFrame(frame);
+    threeRender(tick);
+    
   };
+frame();
 
-requestAnimationFrame(frame);
-
+function threeRender(tick){
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    function render() {
+       init(); 
+        render_ball();
+        update(tick);
+        requestAnimationFrame( render );
+        renderer.render( scene, camera );
+    }
+    render();
+}
     //var runs = 50; 
     
     //console.log(x);
