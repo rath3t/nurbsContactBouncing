@@ -33,9 +33,11 @@
     var ptsa = [p1a, p2a, p3a, p4a, p5a];
     var curve1 = verb.geom.NurbsCurve.byPoints( ptsa, 3 );
     addCurveToScene( curve1.toThreeGeometry() );
+
+
     var init = function() {
         //scene.remove(ball1.toThreeGeometry());
-        //removeCurveFromScene(ball1_curve_three);
+        
         
         var center= [ball1.x+ball1.radius,ball1.y+ball1.radius];
         var closestPoint = curve1.closestPoint([center[0],center[1],0])
@@ -71,11 +73,24 @@
         mass: mass,
         radius: radius, 
         speed: speed, 
-        _draw: function( ) {
+        _create_draw_obj: function( ) {
             var ball_curve_analytic = this.generatecurve();
         var ball_curve_three    = ball_curve_analytic.toThreeGeometry();
-        //ball1._draw(ball1_curve_three);
-                addCurveToScene( ball_curve_three );
+        ball_curve_three.material = ball_curve_three.material || new THREE.LineBasicMaterial({ linewidth: 2, color: 0x000000});
+        var ball_plot = new THREE.Line(ball_curve_three );
+        return ball_plot;
+               // addCurveToScene( ball_curve_three );
+            
+        },
+        _draw: function( ) {
+                         scene.add(this._create_draw_obj());
+               // addCurveToScene( ball_curve_three );
+            
+        },
+        _remove: function(geom, material) {
+    material = material || new THREE.LineBasicMaterial({ linewidth: 2, color: 0x000000});
+    var del_obj = new THREE.Line( geom, material )
+    scene.remove( del_obj );
             
         },
         generatecpts: function() {
@@ -184,6 +199,7 @@ function threeRender(tick){
     function render() {
        init(); 
         render_ball();
+        ball1._remove(ball1._create_draw_obj());
         update(tick);
         requestAnimationFrame( render );
         renderer.render( scene, camera );
@@ -194,6 +210,11 @@ function threeRender(tick){
     
     //console.log(x);
 
+function removeCurveFromScene_here(geom, material){
+    material = material || new THREE.LineBasicMaterial({ linewidth: 2, color: 0x000FFF});
+    var del_obj = new THREE.Line( geom, material )
+    scene.remove( del_obj );
+}
 	
 </script>
 
