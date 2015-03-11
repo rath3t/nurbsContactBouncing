@@ -28,28 +28,26 @@
     var ptsweights_circ = [1, 0.70710678118, 1, 0.70710678118, 1, 0.70710678118,1,0.70710678118,1];
 
     //generate obstacle
-
+    
     var p1a = [-5,0,0], p2a = [5,-1,0], p3a = [10,5,0], p4a = [3,10,0], p5a = [5, 12, 0];
     var ptsa = [p1a, p2a, p3a, p4a, p5a];
     var curve1 = verb.geom.NurbsCurve.byPoints( ptsa, 3 );
-
+    addCurveToScene( curve1.toThreeGeometry() );
     var init = function() {
         //scene.remove(ball1.toThreeGeometry());
-        removeCurveFromScene(ball1_curve_three);
-        var ball1_curve_analytic = ball1.generatecurve();
-        var ball1_curve_three    = ball1_curve_analytic.toThreeGeometry();
-        ball1._draw(ball1_curve_three);
+        //removeCurveFromScene(ball1_curve_three);
+        
         var center= [ball1.x+ball1.radius,ball1.y+ball1.radius];
         var closestPoint = curve1.closestPoint([center[0],center[1],0])
         var distance = ball1.calcDistance(closestPoint,center);
 
         if(ball1.calcCollision(distance)==true){
-            ball1.calcCollisionConsequences(ball1_curve_analytic,closestPoint);
+            ball1.calcCollisionConsequences(ball1.generatecurve(),closestPoint);
         }
         
 
-        addCurveToScene( curve1.toThreeGeometry() );
-        threeRender();
+        
+        
   };  
      
    
@@ -73,7 +71,10 @@
         mass: mass,
         radius: radius, 
         speed: speed, 
-        _draw: function(ball_curve_three ) {
+        _draw: function( ) {
+            var ball_curve_analytic = this.generatecurve();
+        var ball_curve_three    = ball_curve_analytic.toThreeGeometry();
+        //ball1._draw(ball1_curve_three);
                 addCurveToScene( ball_curve_three );
             
         },
@@ -162,13 +163,20 @@ var update = function() {
     ball1.gravity();
   };
 
+  var render = function() {
+    ball1._draw();
+    threeRender();
+  };
+
   function frame() {
     now   = timestamp();
     tick    = 1/30;
     
     last = now;
     init(); 
+    render();
     update(tick);
+    
     requestAnimationFrame(frame);
   };
 
