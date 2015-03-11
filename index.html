@@ -170,7 +170,7 @@ var update = function() {
 
   function frame() {
     now   = timestamp();
-    tick    = 1/30;
+    tick    = (now-last)/10;
     //requestAnimationFrame(frame);
     last = now;
     
