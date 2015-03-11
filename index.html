@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="verb.js"></script>
+    <script src="js/three.min.js"></script>
+    <script src="js/verbToThreeConversion.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/threeBasic.js"></script>
+    <style> body {  margin: 0; } </style>
+</head>
+<body>
+<script>
+	threeSetup();
+    var gravity = -9.81;
+    var e = 1;
+    var transformation = function(angle,vector){
+        var transformationmatrix = [Math.cos(angle), Math.sin(angle), -Math.sin(angle),Math.cos(angle)];
+        var vector_new = [transformationmatrix[0]*vector[0]+transformationmatrix[1]*vector[1],transformationmatrix[2]*vector[0]+transformationmatrix[3]*vector[1],0];
+        return vector_new;
+    }
+    var inv_transformation = function(angle,vector){
+        var inv_transformationmatrix = [Math.cos(angle), -Math.sin(angle), Math.sin(angle),Math.cos(angle)];
+        var vector_new = [-inv_transformationmatrix[0]*vector[0]-inv_transformationmatrix[1]*vector[1],-inv_transformationmatrix[2]*vector[0]-inv_transformationmatrix[3]*vector[1],0];
+        return vector_new;
+    }
+
+    var knotvec_circ = [0,0,0,0.25,0.25,0.5,0.5,0.75,0.75,1,1,1];
+    var ptsweights_circ = [1, 0.70710678118, 1, 0.70710678118, 1, 0.70710678118,1,0.70710678118,1];
+
+    //generate obstacle
+
+    var p1a = [-5,0,0], p2a = [5,-1,0], p3a = [10,5,0], p4a = [3,10,0], p5a = [5, 12, 0];
+    var ptsa = [p1a, p2a, p3a, p4a, p5a];
+    var curve1 = verb.geom.NurbsCurve.byPoints( ptsa, 3 );
+
+    var init = function() {
+        //scene.remove(ball1.toThreeGeometry());
+        removeCurveFromScene(ball1_curve_three);
+        var ball1_curve_analytic = ball1.generatecurve();
+        var ball1_curve_three    = ball1_curve_analytic.toThreeGeometry();
+        ball1._draw(ball1_curve_three);
+        var center= [ball1.x+ball1.radius,ball1.y+ball1.radius];
+        var closestPoint = curve1.closestPoint([center[0],center[1],0])
+        var distance = ball1.calcDistance(closestPoint,center);
+
+        if(ball1.calcCollision(distance)==true){
+            ball1.calcCollisionConsequences(ball1_curve_analytic,closestPoint);
+        }
+        
+
+        addCurveToScene( curve1.toThreeGeometry() );
+        threeRender();
+  };  
+     
+   
+
+    var Ball = function(x, y, mass, radius, speed) {
+    return {
+        x: x, //lower left corner x
+        y: y, //lower left corner y
+    //|         , - ~ ~ ~ - ,
+    //|     , '               ' ,
+    //|   ,                       , 
+    //|  ,                         ,
+    //| ,                           ,
+    //| ,                           ,
+    //| ,                           ,
+    //|  ,                         ,
+    //|   ,                       ,
+    //|     ,                  , '
+    //|_____  ' - , _ _ _ ,  '
+    //x,y
+        mass: mass,
+        radius: radius, 
+        speed: speed, 
+        _draw: function(ball_curve_three ) {
+                addCurveToScene( ball_curve_three );
+            
+        },
+        generatecpts: function() {
+            var p1b= [this.x,                this.y+this.radius,     0];
+            var p2b= [this.x,                this.y,                 0]; 
+            var p3b= [this.x+this.radius,    this.y,                 0]; 
+            var p4b= [this.x+2*this.radius,  this.y,                 0]; 
+            var p5b= [this.x+2*this.radius,  this.y+this.radius,     0]; 
+            var p6b= [this.x+2*this.radius,  this.y+2*this.radius,   0]; 
+            var p7b= [this.x+this.radius,    this.y+2*this.radius,   0];
+            var p8b= [this.x,                this.y+2*this.radius,   0];
+            var ptsb= [p1b,p2b, p3b,p4b, p5b,p6b,p7b,p8b,p1b];
+
+                 return ptsb;
+            
+        },
+        
+        
+        generatecurve: function() {
+            
+                 return verb.geom.NurbsCurve.byKnotsControlPointsWeights(2, knotvec_circ,this.generatecpts() ,ptsweights_circ );
+            
+        },
+        gravity: function() {
+                this.speed[1] = this.speed[1] + gravity*tick;
+                this.x=this.x+this.speed[0]*tick
+                this.y =this.y+0.5*gravity*Math.pow(tick,2)+this.speed[1]*tick;
+            
+        },
+        calcDistance: function(closest_point,center) {
+            
+            
+      
+            return Math.sqrt(Math.pow((closest_point[0] - center[0]), 2) + Math.pow((closest_point[1] - center[1]), 2));
+            
+        },
+        //gravity maybe leads to collision between ball and curve
+        calcCollision: function(distance) {
+            var tolerance =4*this.radius*tick;
+            if(distance <= this.radius+tolerance) {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        calcCollisionConsequences: function(ball_curve_analytic,closest_point) {
+            var param = ball_curve_analytic.closestParam(closest_point);
+            var coll_tangent = ball_curve_analytic.tangent(param);
+            var normal_tang = [-coll_tangent[1]/coll_tangent[0],1,0]; //generate orthogonal vector from tangent vector
+            //var abs_normal = Math.sqrt(Math.pow(normal_tang[0],2)+Math.pow(normal_tang[1],2)+Math.pow(normal_tang[2],2));
+            //var normalised_normal_tang =[normal_tang[0]/abs_normal,normal_tang[1]/abs_normal,normal_tang[2]/abs_normal];
+            //convert speeds in local,normalised directions
+            //Collision angle:
+            var angle_coll = Math.atan(coll_tangent[1]/coll_tangent[0]);
+
+            //Transformationmatrix:
+            var trans_speed = transformation(angle_coll,this.speed);
+            //...
+            //calculate new speeds due to collision
+            var trans_speed_new= [0,0];
+            trans_speed_new[0] = trans_speed[0]-trans_speed[0]*(1+e);
+            trans_speed_new[1] = trans_speed[1];
+            
+            //convert speeds back to global directions
+            this.speed = inv_transformation(angle_coll,trans_speed_new);
+            //...
+            
+            
+            //cancelAnimationFrame(frame)
+            //console.log( coll_tangent, normal_tang,angle_coll,this.speed);
+        }
+    };
+  }
+
+ var ball1 = new Ball(6,3,10,1,[0,0]);
+
+ 
+  function timestamp() {
+    return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+  };
+ var now, tick,
+    last = timestamp();
+
+var update = function() {
+    ball1.gravity();
+  };
+
+  function frame() {
+    now   = timestamp();
+    tick    = 1/30;
+    
+    last = now;
+    init(); 
+    update(tick);
+    requestAnimationFrame(frame);
+  };
+
+requestAnimationFrame(frame);
+
+    //var runs = 50; 
+    
+    //console.log(x);
+
+	
+</script>
+
+</body>  
+
+</html>
