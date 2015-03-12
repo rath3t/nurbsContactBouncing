@@ -1,0 +1,40 @@
+with(LinearAlgebra):
+with(CurveFitting):
+
+Gauss_points:=proc(n)
+
+local gauss_p,gauss_w,uu,k,u,q,w,i,nquad;
+gauss_p:=Vector(floor(n/2+1)):
+gauss_w:=Vector(floor(n/2+1)):
+if n=0 or n= 1 then
+	gauss_p, gauss_w := <0>, <2>:
+elif n=2 or n=3 then
+	gauss_p, gauss_w := <-1/sqrt(3), 1/sqrt(3)>, <1, 1>:
+elif n=4 or n=5 then
+	gauss_p, gauss_w := <-sqrt(3/5), 0, sqrt(3/5)>, <5/9, 8/9, 5/9>:
+elif n=6 or n=7 then
+	gauss_p, gauss_w := <-0.86113631159405257522, -0.33998104358485626480, 0.33998104358485626480, 0.86113631159405257522>, <0.34785484513745385736, 0.65214515486254614260, 0.65214515486254614257, 0.34785484513745385741>:
+elif n=8 or n=9 then
+	gauss_p, gauss_w := <-.9061798459, -.5384693101, 0., .5384693101, .9061798459>, <.2369268858, .4786286687, .5688888891, .4786286699, .2369268851>:
+elif n=10 or n=11 then
+	gauss_p, gauss_w := <-.9324695142, -.6612093865, -.2386191861, .2386191861, .6612093865, .9324695142>, <.1713244915, .3607615743, .4679139382, .4679139336, .3607615731, .1713244923>:
+elif n>11 then
+    nquad:=floor(n/2+1):
+    gauss_p:=[fsolve(orthopoly[P](nquad,x),x)]; # orthopoly[P](nquad,x) generates the nth Legendre polynomial.
+	gauss_w:=[];
+	uu:=[seq(0,k=1..nquad)]; #intialize 0-Vector
+	for k from 1 to nquad do
+		u:=subsop(k=1,uu);   #generates testfunction i.e. [1,0,0],[0,1,0],[0,0,1] for n=3
+		q:=PolynomialInterpolation(gauss_p,u,x); # interpolation gauss points
+ 		w:=int(q,x=-1..1); # integrate to get weight
+ 		gauss_w:=[op(gauss_w),w];
+ 	od:
+
+end if:
+
+return gauss_p, gauss_w:
+end proc:
+
+
+
+
