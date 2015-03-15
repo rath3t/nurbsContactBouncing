@@ -44,8 +44,11 @@
     addCurveToScene( curve1.toThreeGeometry() );
 
     var init = function() {
-        //scene.remove(ball1.toThreeGeometry());
-        
+       scene.remove(scene.children[5]);
+       scene.remove(scene.children[7]);
+       scene.remove(scene.children[8]);
+       scene.remove(scene.children[9]);
+    //renderer.deallocateObject( obj );
         //test distance between ball and obstacle
         var center= [ball1.x+ball1.axis_x,ball1.y+ball1.axis_y];
          addPointsToScene([center]);
@@ -54,6 +57,17 @@
         var ball1_curve_anal = ball1.generatecurve();
         var ball1_data = new verb.core.NurbsCurveData(2, knotvec_circ, ball1.generatecpts(), ptsweights_circ);
         var intersect = ball1.calcCollision(curve1,ball1.generatecurve());
+
+         var material_line1 = new THREE.LineBasicMaterial({color: 0xffffff});
+                var geometry_line1 = new THREE.Geometry();
+                geometry_line1.vertices.push(
+                    new THREE.Vector3(center[0],center[1],0),
+                    new THREE.Vector3(center[0]-ball1.speed[0],center[1]-ball1.speed[1],0)
+                    //new THREE.Vector3( 10, 0, 0 )
+                ); 
+
+                var line1 = new THREE.Line( geometry_line1, material_line1 );
+                scene.add( line1 );
         if(intersect!=[]){
             ball1.calcCollisionConsequences(ball1_curve_anal,intersect);
         }    
@@ -69,7 +83,7 @@
             _create_draw_obj: function( ) {
                 var ball_curve_analytic = this.generatecurve();
                 var ball_curve_three    = ball_curve_analytic.toThreeGeometry();
-                ball_curve_three.material = ball_curve_three.material || new THREE.LineBasicMaterial({ linewidth: 2, color: 0x000000});
+                ball_curve_three.material = THREE.LineBasicMaterial({ linewidth: 2, color: 0xFFFFFF});
                 var ball_plot = new THREE.Line(ball_curve_three );
                 return ball_plot;
                // addCurveToScene( ball_curve_three );
@@ -187,7 +201,7 @@
             _create_draw_obj: function( ) {
                 var ball_curve_analytic = this.generatecurve();
                 var ball_curve_three    = ball_curve_analytic.toThreeGeometry();
-                ball_curve_three.material = ball_curve_three.material || new THREE.LineBasicMaterial({ linewidth: 2, color: 0x000000});
+                ball_curve_three.material = new THREE.LineBasicMaterial({ linewidth: 2, color: 0xFFFFFF});
                 var ball_plot = new THREE.Line(ball_curve_three );
                 return ball_plot;
                // addCurveToScene( ball_curve_three );
@@ -239,6 +253,9 @@
                 } else {
                     //console.log();
                     if(intersect.length>=2){
+                        addPointsToScene([intersect[0].point0]);
+                         addPointsToScene([intersect[1].point0]);
+                        console.log("Intersect: ",intersect[0].point0 );
                         return [(intersect[0].point0[0]+intersect[1].point0[0])/2, (intersect[0].point0[1]+intersect[1].point0[1])/2,0];
                     }else{
                         return [intersect[0].point0[0], intersect[0].point0[1],0];
@@ -247,6 +264,7 @@
                 
             },
             calcCollisionConsequences: function(ball_curve_analytic,intersect) {
+
                 var param = ball_curve_analytic.closestParam(intersect);
                 console.log("Beruehrungspunkt:",intersect);
                 var coll_tangent = ball_curve_analytic.tangent(param);
@@ -260,12 +278,12 @@
                     console.log("3")
                     var normal_tang = [-coll_tangent[1]/coll_tangent[0],1]; 
                 }else{
-                    console.log("4")
+                   console.log("4")
                     var normal_tang = [-coll_tangent[1]/coll_tangent[0],1]; 
                 }
                 var norm =Math.sqrt(Math.pow(normal_tang[0],2)+Math.pow(normal_tang[1],2));
                 var normalised_normal_tang =[normal_tang[0]/norm,normal_tang[1]/norm];
-                var correction = 0.1;
+                var correction = 1;
                  
                 
                 //Collision angle:
@@ -305,7 +323,7 @@
 
 
                 //plot center :
-                   
+
                 
                 
                 console.log("Center: ", center);
@@ -314,10 +332,14 @@
                 console.log("x_Abstand: ",x_dis,"Center:", center);
                 trans_speed_new[0] = trans_speed[0]-s/this.mass;
                 trans_speed_new[1] = trans_speed[1];
-                trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
+                if(coll_tangent[0]>0){
+                    trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
+                }else if(coll_tangent[0]<0){
+                    trans_speed_new[2] = this.speed[2]+s*x_dis/massInertia;
+                }
                 //convert speeds back to global directions
                 this.speed = inv_transformation(angle_coll,trans_speed_new);
-                
+                console.log("Geschwindigkeitsvektor: ", this.speed);
                 this.x  = this.x+correction*normalised_normal_tang[0];
                 this.y  = this.y+correction*normalised_normal_tang[1];
 
@@ -326,7 +348,7 @@
     }
     //var ball1 = new Ball(4,6,10,1,[0,0]);
     
-    var ball1 = new Ellipse(-4,0,100,0.75,1.5,[0,0,0],0);
+    var ball1 = new Ellipse(-4,0,100,0.75,1.5,[5,5,0],0);
     function timestamp() {
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     };
@@ -344,7 +366,7 @@
 
     function frame() {
         now   = timestamp();
-        tick    = (now-last)/20;
+        tick    = 1/200;
         last = now;
 
         threeRender(tick);
@@ -355,9 +377,10 @@
         var controls = new THREE.OrbitControls(camera, renderer.domElement);
         function render() {
             init(); 
+            update(tick);
             render_ball();
             //ball1._remove(ball1._create_draw_obj());
-            update(tick);
+            
             requestAnimationFrame( render );
             renderer.render( scene, camera );
         }
