@@ -283,7 +283,7 @@
                 }
                 var norm =Math.sqrt(Math.pow(normal_tang[0],2)+Math.pow(normal_tang[1],2));
                 var normalised_normal_tang =[normal_tang[0]/norm,normal_tang[1]/norm];
-                var correction = 1;
+                var correction = 0.1;
                  
                 
                 //Collision angle:
@@ -332,9 +332,9 @@
                 console.log("x_Abstand: ",x_dis,"Center:", center);
                 trans_speed_new[0] = trans_speed[0]-s/this.mass;
                 trans_speed_new[1] = trans_speed[1];
-                if(coll_tangent[0]>0){
-                    trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
-                }else if(coll_tangent[0]<0){
+                if(coll_tangent[0]>0 && coll_tangent[1]>0){
+                    trans_speed_new[2] = this.speed[2]+s*x_dis/massInertia;
+                }else if(coll_tangent[0]<0 && coll_tangent[1]<0){
                     trans_speed_new[2] = this.speed[2]+s*x_dis/massInertia;
                 }
                 //convert speeds back to global directions
@@ -366,31 +366,32 @@
 
     var accumulator = 0
  
-
     function frame() {
         
-        tick    = 1/60;
-        last = now;
+       // tick    = 1/10;
+        
 
-        threeRender(tick);
+        threeRender();
         };
-
-
-    function threeRender(tick){
+var now =0;
+var last =0;
+tick=1/100;
+    function threeRender(){
         var controls = new THREE.OrbitControls(camera, renderer.domElement);
         function render() {
-            var frameStart  = timestamp();
-            init(); 
-            var currentTime = timestamp();
-            accumulator += currentTime-frameStart;
-            frameStart = timestamp();
+            now  = timestamp();
 
-            update(tick);
+            
+
+            init(); 
+            update();
             render_ball();
+
             //ball1._remove(ball1._create_draw_obj());
             
             requestAnimationFrame( render );
             renderer.render( scene, camera );
+            last  = timestamp();
         }
     render();
     }
