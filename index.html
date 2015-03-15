@@ -364,9 +364,12 @@
         ball1._draw();
     };
 
+    var accumulator = 0
+ 
+
     function frame() {
-        now   = timestamp();
-        tick    = 1/200;
+        
+        tick    = 1/60;
         last = now;
 
         threeRender(tick);
@@ -376,7 +379,12 @@
     function threeRender(tick){
         var controls = new THREE.OrbitControls(camera, renderer.domElement);
         function render() {
+            var frameStart  = timestamp();
             init(); 
+            var currentTime = timestamp();
+            accumulator += currentTime-frameStart;
+            frameStart = timestamp();
+
             update(tick);
             render_ball();
             //ball1._remove(ball1._create_draw_obj());
