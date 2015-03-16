@@ -6,14 +6,22 @@
 <body>
 <script>
 
-var vec1 = new vector2d (2,1);
-var vec2 = new vector2d (5,3);
-var matrix = new matrix2x2(1,2,2,1);
-//var rotationmatrix = new rotationmatrix(0);
-
-var res = rotate_vec(Math.PI/2,vec1);
-console.log(res);
-console.log(rotate_vec_inv(Math.PI/2,res));
+var vec1 = new vector2d (2,1,0);
+var vec2 = new vector2d (5,3,0);
+var matrix = new matrix2x2(3,2,13,4);
+console.log("-------------------Test Vector functions----------------")
+console.log("--------------------------------------------------------")
+console.log("Vector addition: 		should   [7,4,0] is :", vec1.add(vec2));
+console.log("Vector substraction:    should [-3,-2,0] is :", vec1.sub(vec2));
+console.log("Scalarproduct:          should        13 is :", vec1.scalarProd(vec2));
+console.log("Scalar multiply:        should [20,12,0] is :", vec2.multi_scalar(4));
+console.log("--------------------------------------------------------")
+console.log("-------------------Test Matrix functions----------------")
+console.log("--------------------------------------------------------")
+console.log("Matrix Determinant:     should       -14 is :", matrix.get_det());
+console.log("Scalarmultiply:        should [9,39,6,12] is :", matrix.multi_scalar(3));
+//console.log();
+//console.log(rotate_vec_inv(Math.PI/2,res));
 
 </script>
 

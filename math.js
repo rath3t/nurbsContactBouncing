@@ -13,21 +13,23 @@
 //  (x2 y2)
 //angle  = angle
 
-var vector2d = function(x1,x2){
+var vector2d = function(x1,x2,x3){
 	return {
 		x1: x1,
 		x2: x2,
+		x3: x3,
 		add: function(vector){
-			return new vector2d(this.x1+vector.x1,this.x2+vector.x2)
+			return new vector2d(this.x1+vector.x1,this.x2+vector.x2,this.x3);
 		},
 		sub: function(vector){
-			return new vector2d(this.x1-vector.x1,this.x2-vector.x2)
+			return new vector2d(this.x1-vector.x1,this.x2-vector.x2,this.x3);
 		},
+		//norm: funct
 		scalarProd: function(vector) {
 			return this.x1*vector.x1+this.x2*vector.x2;
 		},
-		scalarmulti: function(t) {
-			return new vector2d(this.x1*t,this.x2*t);
+		multi_scalar: function(t) {
+			return new vector2d(this.x1*t,this.x2*t,this.x3);
 		},
 
 	}
