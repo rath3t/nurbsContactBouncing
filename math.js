@@ -20,6 +20,8 @@ var compare_tol = 1e-10;
 //  (x1 y1)
 //  (x2 y2)
 
+//linear Algebra:
+
 var vector2d = function(x1,x2,x3){
 	return {
 		x1: x1,
