@@ -67,7 +67,7 @@ var rotationmatrix =function(angle){
 }
 
 var rotate_vec = function(angle,vector){
-	var rotationmatrix = new rotationmatrix(this.angle);
+	var rotationmatrix = new rotationmatrix(angle);
 	return new vector2d(rotation_matrix.get().multi_vec(vector));
 }
 
