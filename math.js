@@ -48,6 +48,9 @@ var vector2d = function(x1,x2,x3){
 		inv_rotate: function(angle,origin){ //rotations are always counter-clockwise 
 			var rotation_matrix = new inv_rotationmatrix(angle);
 			return (rotation_matrix.multi_vec(this.sub(origin))).add(origin);
+		},
+		normal_vec: function(){ // generate orthogonal vector in right-handed orientation
+			return new vector2d(-this.x2,this.x1,this.x3);
 		}
 	}
 }
