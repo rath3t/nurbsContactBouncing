@@ -79,22 +79,27 @@ var error_count_matrix = 0;
 var res13 = matrix.get_det();
 if (Math.abs(res13+14)>1e-10){error_count++; error_count_matrix++}
 console.log("Matrix Determinant:      should           -14 is :", res13);
+
 var res14 = matrix.multi_scalar(3);
 var exa = new Matrix2x2(9,6,39,12)
 if (!res14.compare(exa)){error_count++; error_count_matrix++}
 console.log("Scalarmultiply:          should   [9,39,6,12] is :", res14);
+
 var res15 = matrix.multi_vec(vec1);
 var exa2 = new Vector2d(8,30,0);
 if (!res15.compare_exact(exa2)){error_count++; error_count_matrix++}
 console.log("Matrix*vector:           should      [8,30,0] is :", res15);
+
 var res16 = matrix.multi_matrix(matrix1);
 var exa3 = new Matrix2x2(29,15,93,37)
 if (!res16.compare(exa3)){error_count++; error_count_matrix++} //throw new Error('Des und des isch falsch')
 console.log("Matrix*Matrix:           should [29,93,15,37] is :", res16);
+
 var res17 = matrix2.inv();
 var exa4 = new Matrix2x2(1.5,-0.5,-3.5,1.5)
 if (!res17.compare(exa4)){error_count++; error_count_matrix++}
 console.log("Matrix Inverse:    should [1.5,-3.5,-0.5,1.5] is :", res17);
+
 console.log("--------------------------------------------------------")
 console.log("--------"+ error_count_matrix +" errors found in Matrix calculations-----------")
 console.log("--------------------------------------------------------")
