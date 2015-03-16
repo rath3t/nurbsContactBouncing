@@ -14,19 +14,45 @@ var vec5 = new vector2d (17,27,0);
 var matrix = new matrix2x2(3,2,13,4);
 var matrix1 = new matrix2x2(5,1,7,6);
 var matrix2 = new matrix2x2(3,1,7,3);
+var error_count=0;
 console.log("--------------------------------------------------------")
 console.log("-------------------Test Vector functions----------------")
 console.log("--------------------------------------------------------")
-console.log("Vector addition: 	 	 should       [7,4,0] is :", vec1.add(vec2));
-console.log("Vector substraction:     should     [-3,-2,0] is :", vec1.sub(vec2));
-console.log("Vector norm:             should      2.236... is :", vec1.norm());
-console.log("Normalised Vector:       should  [0.8,-0.6,0] is :", vec3.normalise());
-console.log("Scalarproduct:           should            13 is :", vec1.scalarProd(vec2));
-console.log("Scalar multiply:         should     [20,12,0] is :", vec2.multi_scalar(4));
-var res = vec4.rotate(13,vec5);
-console.log("Rotate Vector:           should      [14.799,-1.5685,0] is :", res);
-console.log("Inv_Rotate :             should       [3,2,0] is :", res.inv_rotate(13,vec5));
-console.log("Normal_vec :             should       [3,4,0] is :", vec3.normal_vec());
+var res1 = vec1.add(vec2);
+if(!(res1.compare_exact(new vector2d(7,4,0)))) {error_count++}
+console.log("Vector addition: 	 	 should       [7,4,0] is :", res1);
+var res2 = vec1.sub(vec2);
+if(!(res2.compare_exact(new vector2d(-3,-2,0)))) {error_count++}
+console.log("Vector substraction:     should     [-3,-2,0] is :", res2);
+var res3 = vec1.norm();
+if(Math.abs(res3-2.236)>1e-4) {error_count++}
+console.log("Vector norm:             should      2.236... is :", res3);
+var res4 = vec3.normalise();
+if(!(res4.compare_exact(new vector2d(0.8,-0.6,0)))) {error_count++}
+console.log("Normalised Vector:       should  [0.8,-0.6,0] is :", res4);
+var res5 = vec1.scalarProd(vec2);
+if(Math.abs(res5-13)>1e-4) {error_count++}
+console.log("Scalarproduct:           should            13 is :", res5);
+var res6 = vec2.multi_scalar(4);
+if(!(res6.compare_exact(new vector2d(20,12,0)))) {error_count++}
+console.log("Scalar multiply:         should     [20,12,0] is :", res6);
+var res7 = vec4.rotate(13,vec5);
+if(!(res7.compare_exact(new vector2d(14.799920980363277,-1.5685080518278767,0)))) {error_count++}
+console.log("Rotate Vector:           should      [14.799,-1.5685,0] is :", res7);
+var res8 = res7.inv_rotate(13,vec5);
+if(!(res8.compare_exact(new vector2d(3,2,0)))) {error_count++}
+console.log("Inv_Rotate :             should       [3,2,0] is :", res8);
+var res9 = vec3.normal_vec();
+if(!(res9.compare_exact(new vector2d(3,4,0)))) {error_count++}
+console.log("Normal_vec :             should       [3,4,0] is :", res9);
+var res10 = vec3.compare_exact(vec3);
+if(res10==false) {error_count++}
+console.log("Compare_vectors_exact:   should          true is :", res10);
+var res11 = vec3.compare_exact(vec4);
+if(res11==true) {error_count++}
+console.log("Compare_vectors_exact:   should         false is :", res11);
+console.log("--------------------------------------------------------")
+console.log("------- "+ error_count +" errors found in Vector calculations-----------")
 console.log("--------------------------------------------------------")
 console.log("-------------------Test Matrix functions----------------")
 console.log("--------------------------------------------------------")

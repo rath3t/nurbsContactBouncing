@@ -7,6 +7,8 @@ var rotationmatrix =function(angle){
 var inv_rotationmatrix =function(angle){ 
 	return new matrix2x2(Math.cos(angle), Math.sin(angle), -Math.sin(angle),Math.cos(angle));
 }
+
+var compare_tol = 1e-10;
 //Matrix function arguments are ordered row-wise
 //arguments are always
 //t      = Scalar
@@ -51,7 +53,24 @@ var vector2d = function(x1,x2,x3){
 		},
 		normal_vec: function(){ // generate orthogonal vector in right-handed orientation
 			return new vector2d(-this.x2,this.x1,this.x3);
+		},
+		compare_exact: function(vector){
+			if(Math.abs(this.x1- vector.x1)<compare_tol && Math.abs(this.x2- vector.x2)<compare_tol){
+				return true;
+			}else{
+				return false;
+			}
+		},
+		compare_direction: function(vector){
+			var normalised = this.normalise();
+			var vector_norm = vector.normalise();
+			if(Math.abs(normalise.x1- vector_norm.x1)<compare_tol && Math.abs(normalise.x2- vector_norm.x2)<compare_tol){
+				return true;
+			}else{
+				return false;
+			}
 		}
+
 	}
 }
 
