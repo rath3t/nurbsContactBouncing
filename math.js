@@ -2,7 +2,6 @@
 //General
 //Matrix function arguments are ordered row-wise
 
-//rotation of a vector around the vektor[0,0,1]
 
 
 var vector2d = function(x1,x2){
@@ -60,7 +59,7 @@ var rotationmatrix =function(angle){
 }
 
 var rotate_vec = function(angle,vector){
-	var rotation_matrix = rotationmatrix(angle);
+	var rotation_matrix = new rotationmatrix(angle);
 	return new vector2d(rotation_matrix.get().multi_vec(vector));
 }
 
