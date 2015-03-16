@@ -8,18 +8,32 @@
 
 var vec1 = new vector2d (2,1,0);
 var vec2 = new vector2d (5,3,0);
+var vec3 = new vector2d (4,-3,0);
+var vec4 = new vector2d (3,2,0);
+var vec5 = new vector2d (17,27,0);
 var matrix = new matrix2x2(3,2,13,4);
+var matrix1 = new matrix2x2(5,1,7,6);
+var matrix2 = new matrix2x2(3,1,7,3);
+console.log("--------------------------------------------------------")
 console.log("-------------------Test Vector functions----------------")
 console.log("--------------------------------------------------------")
-console.log("Vector addition: 		should   [7,4,0] is :", vec1.add(vec2));
-console.log("Vector substraction:    should [-3,-2,0] is :", vec1.sub(vec2));
-console.log("Scalarproduct:          should        13 is :", vec1.scalarProd(vec2));
-console.log("Scalar multiply:        should [20,12,0] is :", vec2.multi_scalar(4));
+console.log("Vector addition: 	 	 should       [7,4,0] is :", vec1.add(vec2));
+console.log("Vector substraction:     should     [-3,-2,0] is :", vec1.sub(vec2));
+console.log("Vector norm:             should      2.236... is :", vec1.norm());
+console.log("Normalised Vector:       should  [0.8,-0.6,0] is :", vec3.normalise());
+console.log("Scalarproduct:           should            13 is :", vec1.scalarProd(vec2));
+console.log("Scalar multiply:         should     [20,12,0] is :", vec2.multi_scalar(4));
+var res = vec4.rotate(13,vec5);
+console.log("Rotate Vector:           should      [14.799,-1.5685,0] is :", res);
+console.log("Inv_Rotate :             should       [3,2,0] is :", res.inv_rotate(13,vec5));
 console.log("--------------------------------------------------------")
 console.log("-------------------Test Matrix functions----------------")
 console.log("--------------------------------------------------------")
-console.log("Matrix Determinant:     should       -14 is :", matrix.get_det());
-console.log("Scalarmultiply:        should [9,39,6,12] is :", matrix.multi_scalar(3));
+console.log("Matrix Determinant:      should           -14 is :", matrix.get_det());
+console.log("Scalarmultiply:          should   [9,39,6,12] is :", matrix.multi_scalar(3));
+console.log("Matrix*vector:           should      [8,30,0] is :", matrix.multi_vec(vec1));
+console.log("Matrix*Matrix:           should [29,93,15,37] is :", matrix.multi_matrix(matrix1));
+console.log("Matrix Inverse:          should [1.5,-3.5,-0.5,1.5] is :", matrix2.inv());
 //console.log();
 //console.log(rotate_vec_inv(Math.PI/2,res));
 
