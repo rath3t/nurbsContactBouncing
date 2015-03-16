@@ -34,7 +34,6 @@ var vector2d = function(x1,x2){
 }
 
 var matrix2x2 =function(x1,y1,x2,y2){ 
-	
 	return {
 		x1: x1,
 		x2: x2,
@@ -63,16 +62,20 @@ var matrix2x2 =function(x1,y1,x2,y2){
 }
 
 var rotationmatrix =function(angle){ 
-		return new matrix2x2(Math.cos(angle), Math.sin(angle), -Math.sin(angle),Math.cos(angle));
+	return new matrix2x2(Math.cos(angle), Math.sin(angle), -Math.sin(angle),Math.cos(angle));
+}
+
+var inv_rotationmatrix =function(angle){ 
+	return new matrix2x2(Math.cos(angle), -Math.sin(angle), Math.sin(angle),Math.cos(angle));
 }
 
 var rotate_vec = function(angle,vector){
-	var rotationmatrix = new rotationmatrix(angle);
-	return new vector2d(rotation_matrix.get().multi_vec(vector));
+	
+	var rotation_matrix = new rotationmatrix(angle);
+	return rotation_matrix.multi_vec(vector);
 }
 
-//var rotate_vec_inv = function(angle,vector){
-//	var rotationmatrix = new rotationmatrix(angle).inv();
-//
-//	return new vector2d(rotationmatrix.multi_vec(vector));
-//}
+var rotate_vec_inv = function(angle,vector){
+	var inv_rotation_matrix = new inv_rotationmatrix(angle);
+	return inv_rotation_matrix.multi_vec(vector);
+}
