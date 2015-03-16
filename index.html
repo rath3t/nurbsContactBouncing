@@ -36,7 +36,7 @@
 
     //generate obstacle
     
-    var p1a = [-5,-1,0], p2a = [5,-1,0], p3a = [7,2,0], p4a = [5,8,0], p5a = [-5, -1, 0];
+    var p1a = [-5,-1,0], p2a = [5,-1,0], p3a = [7,2,0], p4a = [5,5,0], p5a = [-5, -1, 0];
     var ptsa = [p1a, p2a, p3a, p4a, p5a];
 
     var curve1 = verb.geom.NurbsCurve.byPoints( ptsa, 3 );
@@ -348,7 +348,7 @@
     }
     //var ball1 = new Ball(4,6,10,1,[0,0]);
     
-    var ball1 = new Ellipse(-4,0,100,0.75,1.5,[5,5,0],0);
+    var ball1 = new Ellipse(-4,0,100,1,1,[5,5,0],0);
     function timestamp() {
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     };
