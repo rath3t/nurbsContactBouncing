@@ -64,7 +64,7 @@ var vector2d = function(x1,x2,x3){
 		compare_direction: function(vector){
 			var normalised = this.normalise();
 			var vector_norm = vector.normalise();
-			if(Math.abs(normalise.x1- vector_norm.x1)<compare_tol && Math.abs(normalise.x2- vector_norm.x2)<compare_tol){
+			if(Math.abs(normalised.x1- vector_norm.x1)<compare_tol && Math.abs(normalised.x2- vector_norm.x2)<compare_tol){
 				return true;
 			}else{
 				return false;
