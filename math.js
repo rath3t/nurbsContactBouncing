@@ -83,3 +83,12 @@ var matrix2x2 =function(x1,y1,x2,y2){
 	}
 }
 
+var line2d = function(normal_v,pos_vec){
+	return{
+		distance_point: function(pt){ //distance between line and point with hesse normal form
+			return normal_v.normalise().scalarProd(pt.sub(pos_vec));
+		}
+	}
+}
+
+
