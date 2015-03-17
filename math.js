@@ -118,5 +118,3 @@ var Line2d = function(normal_v,pos_vec){
 		}
 	}
 }
-
-
