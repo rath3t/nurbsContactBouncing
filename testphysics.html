@@ -18,13 +18,27 @@ var pos2 = new Vector2d(4,5,0);
 var speed = new Vector2d(1,1,1);
 var acc = new Vector2d(0,0,1);
 
-var circle = new Circle(2,pos);
+var phys_objs = [];
+
+var circle = new Circle(2,pos,10);
+
 circle.speed = speed;
 circle.acc =acc;
 circle.generateNurbsData();
 circle.generateShape();
 
-var ellipse = new Ellipse(2,1,pos2)
+phys_objs.push(circle);
+
+var ellipse = new Ellipse(2,1,pos2,10)
+ellipse.speed = speed;
+ellipse.acc =acc;
+ellipse.generateNurbsData();
+ellipse.generateShape();
+
+phys_objs.push(ellipse);
+
+
+
 var t = circle instanceof Circle;
 
 
@@ -40,6 +54,7 @@ console.log("Test circle inheritance:        should   true, true,[2,3,0] is :", 
 circle.move();
 if(!circle.pos.compare_exact(new Vector2d(2.5,3.5,0.75))){error_count++; throw new Error('Circle movement error')};
 console.log("Test Circle movement:           should       [2.5,3.5,0.75] is :", circle.pos.x1,circle.pos.x2,circle.pos.x3);
+gravity(phys_objs);
 console.log("--------------------------------------------------------")
 console.log("---------------"+ error_count +" errors found in physics.js-------------")
 console.log("--------------------------------------------------------")
