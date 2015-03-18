@@ -23,39 +23,43 @@ var collisionHandler = function(){
 	//process all distances between phys_objs
 	//collision yes,no -> consequences
 	//update positons/speed/acc
+
+	//if collision with obstacle then 
+	//	calc simplified collision consequenses
+	//else 
+	// normal calculation
 }
 
-var Phys_obj = function(pos,mass,speed,acc,shapedata){
+var Phys_obj = function(pos,mass,speed,acc,shapeData){
 	this.pos = pos;  //pos.x1 =x position, pos.x2 =y position, pos.x3 =orientation_angle,
 	this.mass = mass;
 	this.speed = speed; //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
 	this.acc = acc; // acc = [0,0] no rotation acceleration
-	this.shapedata = {
+	this.shapeData = {
 		degree: 0,
 		knotvec: 0,
 		controlpoints: 0,
 		weights: 0
-	}; //every shape is generated with NURBS basic functions //shapedata: [knotvec, controlpoints,weights]
+	}; //every shape is generated with NURBS basic functions //shapeData: [knotvec, controlpoints,weights]
 	
-	this.generateNurbsData = function() { //convert nurbsData to verb nurbsData
-		this.nurbsData = new verb.core.NurbsCurveData(this.shapedata.degree,this.shapedata.knotvec.slice(),verb.core.Eval.homogenize1d(this.shapedata.controlpoints,this.shapedata.weights));
+	this.generateNurbsData = function() { //convert shapeData to verb nurbsData
+		this.nurbsData = new verb.core.NurbsCurveData(this.shapeData.degree,this.shapeData.knotvec.slice(),verb.core.Eval.homogenize1d(this.shapeData.controlpoints,this.shapeData.weights));
 	}
-	this.generateShape= function() { //generate shape from verb
+	this.generateShape= function() { //generate shape from verbs
 		this.shape = new verb.geom.NurbsCurve(this.nurbsData);
 	}
-	this.rotate = function() { 
-        this.pos.x3=this.pos.x3+this.speed.x3*tick;
-	  //generate new this.pos.x1 and this.pos.x2 and give new shapedata back ----- depends on objects angle = this.pos.x3}
+	this.move = function() { //generate shape from verbs
+		//this.shape = new verb.geom.NurbsCurve(this.nurbsData);
 	}
 }
 
 
-Circle = function(radius,pos){
+var Circle = function(radius,pos){
 	this.radius = radius;
 	this.pos 	= pos;
-	this.shapedata.degree = 2;
-	this.shapedata.knotvec = knotvec_circ;
-	this.shapedata.weights = ptsweights_circ;
+	this.shapeData.degree = 2;
+	this.shapeData.knotvec = knotvec_circ;
+	this.shapeData.weights = ptsweights_circ;
 	this.generate_circle_cpts = function(){
 		var p1b= [this.pos.x1,                this.pos.x2+this.radius,     0];
         var p2b= [this.pos.x1,                this.pos.x2,                 0]; 
@@ -70,7 +74,7 @@ Circle = function(radius,pos){
 
         return ptsb;
 	}
-	this.shapedata.controlpoints = this.generate_circle_cpts();
+	this.shapeData.controlpoints = this.generate_circle_cpts();
 }
 
 
@@ -78,4 +82,6 @@ Circle = function(radius,pos){
 Circle.prototype = new Phys_obj;
 Circle.prototype.constructor = Circle;
 
+//Ellipse = function... proto = phys_obj
 
+//obstacle = function no proto, no speed, mass = inifity, i.e. wall
