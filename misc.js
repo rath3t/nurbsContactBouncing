@@ -1,7 +1,7 @@
 
 var checkValue = function(value)
 if(value === undefined){
-		throw new Error('Object needs value??' )
+		throw new Error('Object needs value' )
 	}else{
-		this.mass   = mass;
+		return value;
 	}
