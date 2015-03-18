@@ -1,7 +1,8 @@
 
-var checkValue = function(value)
-if(value === undefined){
-		throw new Error('Object needs value' )
+var checkandYield = function(param,name){
+	if(param || param === 0){
+		return param;
 	}else{
-		return value;
+		throw new Error('Parameter not defined:'+ name);
 	}
+}

@@ -31,7 +31,7 @@ var collisionHandler = function(){
 }
 
 var Phys_obj = function(pos,mass,speed,acc){
-	this.pos = pos;  //pos.x1 =x position, pos.x2 =y position, pos.x3 =orientation_angle,
+	this.pos = new Vector2d(0,0,0);  //pos.x1 =x position, pos.x2 =y position, pos.x3 =orientation_angle,
 	this.mass = mass;
 	this.speed = speed; //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
 	this.acc = acc; // acc = [0,0,0]
@@ -58,7 +58,7 @@ var Phys_obj = function(pos,mass,speed,acc){
 
 var Circle = function(radius,pos,mass){
 	this.radius = radius;
-	this.pos 	= pos;
+	this.prototype.pos 	= pos;
 	if(this.mass === undefined){
 		throw new Error('Physical objects need mass!')
 	}else{
@@ -91,7 +91,7 @@ Circle.prototype = new Phys_obj;
 Circle.prototype.constructor = Circle;
 
 var Ellipse = function(x1axis,x2axis,pos,mass){
-	this.x1axis = x1axis;
+	this.x1axis = checkandYield(x1axis,"x1axis";
 	this.x2axis = x2axis;
 	this.pos 	= pos;
 	if(this.mass === undefined){
