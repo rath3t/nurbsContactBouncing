@@ -6,12 +6,27 @@
 </head>
 <body>
 <script>
-var wurst = new Vector2d(2,1,0);
-var ball = Object.create( phys_obj(wurst) );
+//var wurst = new Vector2d(2,1,0);
+//var ball = Object.create( phys_obj(wurst) );
 
-defineProp(ball,"radius", 2);
+//defineProp(ball,"radius", 2);
+var tick	= 0.5; //testing
+var pos = new Vector2d(2,2,0);
+var speed = new Vector2d(1,1,1);
 
-console.log("Eigene: ",ball.radius,"Inherits:",ball.pos);
+var circle = new Circle();
+circle.pos = pos;
+circle.speed = speed;
+
+
+var t = circle instanceof Circle;
+// → true
+
+var s = circle instanceof Phys_obj;
+
+circle.rotate();
+
+console.log(t,s,circle.pos);
 
 </script>
 
