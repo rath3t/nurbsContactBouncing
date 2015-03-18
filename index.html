@@ -236,7 +236,7 @@
             gravity: function() {
                 this.speed[1] = this.speed[1] + gravity*tick;
                 this.x=this.x+this.speed[0]*tick
-                this.y =this.y+0.5*gravity*Math.pow(tick,2)+this.speed[1]*tick;
+                this.y =this.y+0.5*gravity*Math.pow(0.5*tick,2)+this.speed[1]*tick;
             },
             rotate: function() {
                 this.orient_angle=this.orient_angle+this.speed[2]*tick;

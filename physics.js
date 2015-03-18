@@ -24,7 +24,7 @@ var Gravity =function(){
 			this.acc = planet;
 			this.acc_def = "custom";
 		}
-		
+
 		if(!isGravityOn){
 			for (var i = 0; i < phys_obj_array.length; i++) {
 				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 +this.acc;
@@ -84,7 +84,7 @@ var Phys_obj = function(pos,mass,speed,acc,center){
 		this.shape = new verb.geom.NurbsCurve(this.nurbsData);
 	}
 	this.move = function() { //update pos, speed //x3 values are rotationvalues
-		this.pos = this.pos.add((this.speed.multi_scalar(tick)).add(this.acc.multi_scalar(Math.pow(tick,2))));//this.shape = new verb.geom.NurbsCurve(this.nurbsData);
+		this.pos = this.pos.add((this.speed.multi_scalar(tick)).add(this.acc.multi_scalar(0.5*Math.pow(tick,2))));//this.shape = new verb.geom.NurbsCurve(this.nurbsData);
 		this.speed = this.speed.add(this.acc.multi_scalar(tick));
 	}
 }
