@@ -33,9 +33,9 @@ var Phys_obj = function(pos,mass,speed,acc,shapedata){
 		speed: speed, //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
 		acc: acc, // acc = [0,0] no rotation acceleration
 		shapedata: {
-			knotvec: knotvec,
-			controlpoints: controlpoints,
-			weights: weights
+			knotvec: 0,
+			controlpoints: 0,
+			weights: 0
 		}, //every shape is generated with NURBS basic functions //shapedata: [knotvec, controlpoints,weights]
 		generate_shape: function(){
 			//pos, shapeargs....
