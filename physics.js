@@ -32,11 +32,11 @@ var Phys_obj = function(pos,mass,speed,acc,shapedata){
 		mass: mass,
 		speed: speed, //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
 		acc: acc, // acc = [0,0] no rotation acceleration
-		shapedata: {
+		shapedata: { //every shape is generated with NURBS basic functions //shapedata: [knotvec, controlpoints,weights]
 			knotvec: 0,
 			controlpoints: 0,
 			weights: 0
-		}, //every shape is generated with NURBS basic functions //shapedata: [knotvec, controlpoints,weights]
+		}, 
 		generate_shape: function(){
 			//pos, shapeargs....
 			//return i.e. verb.geom.NurbsCurve.byKnotsControlPointsWeights
@@ -44,7 +44,7 @@ var Phys_obj = function(pos,mass,speed,acc,shapedata){
 		rotate: function() {
                 this.pos.x3=this.pos.x3+this.speed.x3*tick;
 
-                //generate new this.pos.x1 and this.pos.x2 and give new shapedata back
+                //generate new this.pos.x1 and this.pos.x2 and give new shapedata back ----- depends on objects angle = this.pos.x3
             },
 	}
 
@@ -52,12 +52,12 @@ var Phys_obj = function(pos,mass,speed,acc,shapedata){
 }
 
 
-Circle = function(radius){
+Circle = function(radius,pos){
 	this.radius = radius;
-	this.shapedata.controlpoints = this.generate_circle_cpts();
+	this.pos 	= pos;
 	this.shapedata.knotvec = knotvec_circ;
 	this.shapedata.weights = ptsweights_circ;
-	var generate_circle_cpts = function(){
+	this.generate_circle_cpts = function(){
 		var p1b= [this.pos.x1,                this.pos.x2+this.radius,     0];
         var p2b= [this.pos.x1,                this.pos.x2,                 0]; 
         var p3b= [this.pos.x1+this.radius,    this.pos.x2,                 0]; 
@@ -70,7 +70,8 @@ Circle = function(radius){
         var ptsb= [p1b,p2b, p3b,p4b, p5b,p6b,p7b,p8b,p1b];
 
         return ptsb;
-}
+	}
+	this.shapedata.controlpoints = this.generate_circle_cpts();
 }
 
 
