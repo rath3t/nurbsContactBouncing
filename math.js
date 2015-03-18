@@ -27,7 +27,7 @@ var Vector2d = function(x1,x2,x3){
 	this.x2 = x2;
 	this.x3 = x3;
 	this.add = function(vector){
-		return new Vector2d(this.x1+vector.x1,this.x2+vector.x2,this.x3);
+		return new Vector2d(this.x1+vector.x1,this.x2+vector.x2,this.x3+vector.x3);
 	}
 	this.sub = function(vector){
 		return new Vector2d(this.x1-vector.x1,this.x2-vector.x2,this.x3);
@@ -38,11 +38,11 @@ var Vector2d = function(x1,x2,x3){
 	this.normalise = function(){
 		return new Vector2d(this.x1/this.norm(),this.x2/this.norm(),this.x3);
 	}
-	this.scalarProd = function(vector) {
-		return this.x1*vector.x1+this.x2*vector.x2;
+	this.dotProd = function(vector) {
+		return this.x1*vector.x1+this.x2*vector.x2+this.x3*vector.x3;
 	}
 	this.multi_scalar = function(t) {
-		return new Vector2d(this.x1*t,this.x2*t,this.x3);
+		return new Vector2d(this.x1*t,this.x2*t,this.x3*t);
 	}
 	this.rotate = function(angle,origin){ //rotations are always counter-clockwise 
 		var rotation_matrix = new rotationmatrix(angle);
@@ -56,7 +56,7 @@ var Vector2d = function(x1,x2,x3){
 		return new Vector2d(-this.x2,this.x1,this.x3);
 	}
 	this.compare_exact = function(vector){
-		if(Math.abs(this.x1- vector.x1)<compare_tol && Math.abs(this.x2- vector.x2)<compare_tol){
+		if(Math.abs(this.x1- vector.x1)<compare_tol && Math.abs(this.x2- vector.x2)<compare_tol && Math.abs(this.x3- vector.x3)<compare_tol){
 			return true;
 		}else{
 			return false;
@@ -109,7 +109,7 @@ var Line2d = function(normal_v,pos_vec){
 	this.normal_v = normal_v;
 	this.pos_vec = pos_vec;
 	this.distance_point = function(pt){ //distance between line and point with hesse normal form
-		return normal_v.normalise().scalarProd(pt.sub(pos_vec));
+		return normal_v.normalise().dotProd(pt.sub(pos_vec));
 	}
 }
 
