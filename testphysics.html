@@ -1,7 +1,9 @@
 <html>
 <head>
     <script src="math.js"></script>
+    <script src="verb.js"></script>
     <script src="physics.js"></script>
+    
     <style> body {  margin: 0; } </style>
 </head>
 <body>
@@ -16,10 +18,11 @@ var speed = new Vector2d(1,1,1);
 
 var circle = new Circle(2,pos);
 circle.speed = speed;
-
+circle.generateNurbsData();
+circle.generateShape();
 
 var t = circle instanceof Circle;
-// → true
+
 
 var s = circle instanceof Phys_obj;
 

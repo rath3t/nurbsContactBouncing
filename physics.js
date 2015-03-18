@@ -26,35 +26,34 @@ var collisionHandler = function(){
 }
 
 var Phys_obj = function(pos,mass,speed,acc,shapedata){
-	return{
-		pos: pos, //pos.x1 =x position, pos.x2 =y position, pos.x3 =orientation_angle,
-		//shapeargs: shapeargs, //circle = radius, ellipse = both semi axis
-		mass: mass,
-		speed: speed, //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
-		acc: acc, // acc = [0,0] no rotation acceleration
-		shapedata: { //every shape is generated with NURBS basic functions //shapedata: [knotvec, controlpoints,weights]
-			knotvec: 0,
-			controlpoints: 0,
-			weights: 0
-		}, 
-		generate_shape: function(){
-			//pos, shapeargs....
-			//return i.e. verb.geom.NurbsCurve.byKnotsControlPointsWeights
-		},
-		rotate: function() {
-                this.pos.x3=this.pos.x3+this.speed.x3*tick;
-
-                //generate new this.pos.x1 and this.pos.x2 and give new shapedata back ----- depends on objects angle = this.pos.x3
-            },
+	this.pos = pos;  //pos.x1 =x position, pos.x2 =y position, pos.x3 =orientation_angle,
+	this.mass = mass;
+	this.speed = speed; //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
+	this.acc = acc; // acc = [0,0] no rotation acceleration
+	this.shapedata = {
+		degree: 0,
+		knotvec: 0,
+		controlpoints: 0,
+		weights: 0
+	}; //every shape is generated with NURBS basic functions //shapedata: [knotvec, controlpoints,weights]
+	
+	this.generateNurbsData = function() { //convert nurbsData to verb nurbsData
+		this.nurbsData = new verb.core.NurbsCurveData(this.shapedata.degree,this.shapedata.knotvec.slice(),verb.core.Eval.homogenize1d(this.shapedata.controlpoints,this.shapedata.weights));
 	}
-
-
+	this.generateShape= function() { //generate shape from verb
+		this.shape = new verb.geom.NurbsCurve(this.nurbsData);
+	}
+	this.rotate = function() { 
+        this.pos.x3=this.pos.x3+this.speed.x3*tick;
+	  //generate new this.pos.x1 and this.pos.x2 and give new shapedata back ----- depends on objects angle = this.pos.x3}
+	}
 }
 
 
 Circle = function(radius,pos){
 	this.radius = radius;
 	this.pos 	= pos;
+	this.shapedata.degree = 2;
 	this.shapedata.knotvec = knotvec_circ;
 	this.shapedata.weights = ptsweights_circ;
 	this.generate_circle_cpts = function(){
