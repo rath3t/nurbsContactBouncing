@@ -11,18 +11,23 @@ var isGravityOn = false;
 
 var Gravity =function(){
 	this.acc = 0;
-	this.on = function(phys_obj_array,planet){
+	this.acc_def = "space";
+	this.global_on = function(phys_obj_array,planet){
 
 		if(planet=="earth"){
 			this.acc = -9.81;
+			this.acc_def = "earth";
 		}else if(planet=="moon"){
 			this.acc = -1.622;
+			this.acc_def = "moon";
 		}else if(!isNaN(planet)){
 			this.acc = planet;
+			this.acc_def = "custom";
 		}
+		
 		if(!isGravityOn){
 			for (var i = 0; i < phys_obj_array.length; i++) {
-				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 -9.81;
+				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 +this.acc;
 				isGravityOn = true;
 			}
 		}
@@ -30,10 +35,15 @@ var Gravity =function(){
 	this.off = function(phys_obj_array){
 		if(isGravityOn){
 			for (var i = 0; i < phys_obj_array.length; i++) {
-				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 + 9.81;
+				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 -this.acc;
 				isGravityOn = false;
+				this.acc_def = "space";
+
 			}
 		}
+	}
+	this.modify_gravity = function(obj,val){
+		obj.acc.x2 =obj.acc.x2 + val;
 	}
 }
 
