@@ -5,11 +5,41 @@ var ptsweights_circ = [1, 0.70710678118, 1, 0.70710678118, 1, 0.70710678118,1,0.
 
 //all body shapes are represented with NURBS -> http://en.wikipedia.org/wiki/Non-uniform_rational_B-spline
 
+//memory variables
+var isGravityOn = false;
 
 
-var gravity =function(phys_obj_array){
+var Gravity =function(){
+	this.acc = 0;
+	this.on = function(phys_obj_array,planet){
+
+		if(planet=="earth"){
+			this.acc = -9.81;
+		}else if(planet=="moon"){
+			this.acc = -1.622;
+		}else if(!isNaN(planet)){
+			this.acc = planet;
+		}
+		if(!isGravityOn){
+			for (var i = 0; i < phys_obj_array.length; i++) {
+				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 -9.81;
+				isGravityOn = true;
+			}
+		}
+	}
+	this.off = function(phys_obj_array){
+		if(isGravityOn){
+			for (var i = 0; i < phys_obj_array.length; i++) {
+				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 + 9.81;
+				isGravityOn = false;
+			}
+		}
+	}
+}
+
+var move_phys_objs =function(phys_obj_array){
 	for (var i = 0; i < phys_obj_array.length; i++) {
-		phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 -9.81;
+		phys_obj_array[i].move();
 	};
 }
 
@@ -86,7 +116,7 @@ var Ellipse = function(x1axis,x2axis,pos,mass){
 	this.pos 	= checkandYield(pos,"pos");
 	this.mass   = checkandYield(mass,"mass");
 	this.center = new Vector2d(this.pos.x1+this.x1axis,this.pos.x2+this.x2axis,0);
-	this.massIntertia = 
+	this.massIntertia = 2;//this.mass*()
 	this.shapeData.degree = 2;
 	this.shapeData.knotvec = knotvec_circ;
 	this.shapeData.weights = ptsweights_circ;
@@ -104,7 +134,7 @@ var Ellipse = function(x1axis,x2axis,pos,mass){
 
         for (var i = 0; i < ptsb.length; i++) {
         	ptsb[i] = (ptsb[i]).rotate(this.pos.x3,this.center);
-        	
+
         };
         // convert ptsb[i] from Vector2d to Array
         return ptsb;
