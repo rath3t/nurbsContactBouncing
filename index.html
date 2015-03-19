@@ -265,9 +265,9 @@
             },
             calcCollisionConsequences: function(ball_curve_analytic,intersect) {
 
-                var param = ball_curve_analytic.closestParam(intersect);
+                var param = curve1.closestParam(intersect);
                 console.log("Beruehrungspunkt:",intersect);
-                var coll_tangent = ball_curve_analytic.tangent(param);
+                var coll_tangent = curve1.tangent(param);
                 if(coll_tangent[1]<0 && coll_tangent[0]>0){
                     console.log("1")
                     var normal_tang = [-coll_tangent[1]/coll_tangent[0],1]; 
