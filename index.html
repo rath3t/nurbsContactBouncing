@@ -133,8 +133,8 @@
                 }
             },
             calcCollisionConsequences: function(ball_curve_analytic,closest_point) {
-                var param = ball_curve_analytic.closestParam(closest_point);
-                var coll_tangent = ball_curve_analytic.tangent(param);
+                var param = curve1.closestParam(closest_point);
+                var coll_tangent = curve1.tangent(param);
                 if(coll_tangent[1]<0 && !(coll_tangent[1]<0)){
                     var normal_tang = [coll_tangent[1]/coll_tangent[0],1]; 
                 }else if(coll_tangent[0]<0){
