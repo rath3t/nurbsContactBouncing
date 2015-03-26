@@ -21,6 +21,17 @@ var compare_tol = 1e-10;
 //  (x2 y2)
 
 //linear Algebra:
+var convertArray2Vector = function(array){
+	//test if array.length == 3
+	return new Vector2d(array[0],array[1],array[2]); 
+}
+
+//angle bisector vector of 2 vectors
+
+var biSectorVector = function(vec0,vec1){
+	//test if array.length == 3
+	return (vec0.normalise()).add(vec1.normalise()); 
+}
 
 var Vector2d = function(x1,x2,x3){
 	this.x1 = x1;
@@ -109,7 +120,7 @@ var Line2d = function(normal_v,pos_vec){
 	this.normal_v = normal_v;
 	this.pos_vec = pos_vec;
 	this.distance_point = function(pt){ //distance between line and point with hesse normal form
-		return normal_v.normalise().dotProd(pt.sub(pos_vec));
+		return (normal_v.normalise()).dotProd(pt.sub(pos_vec));
 	}
 }
 

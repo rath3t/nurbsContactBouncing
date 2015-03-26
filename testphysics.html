@@ -24,16 +24,12 @@ var circle = new Circle(2,pos,10);
 
 circle.speed = speed;
 circle.acc =acc;
-circle.generateNurbsData();
-circle.generateShape();
 
 phys_objs.push(circle);
 
 var ellipse = new Ellipse(2,1,pos2,10)
 ellipse.speed = speed;
 ellipse.acc =acc;
-ellipse.generateNurbsData();
-ellipse.generateShape();
 
 phys_objs.push(ellipse);
 
@@ -52,9 +48,11 @@ console.log("-------------------Test Physic functions----------------")
 console.log("--------------------------------------------------------")
 if(!circle.pos.compare_exact(pos) || t == false || s == false){error_count++; throw new Error('Circle inheritance error')};
 console.log("Test circle inheritance:        should   true, true,[2,3,0] is :", t,s,circle.pos.x1,circle.pos.x2,circle.pos.x3);
+
 circle.move();
-if(!circle.pos.compare_exact(new Vector2d(2.75,4,0.75))){error_count++; throw new Error('Circle movement error')};
-console.log("Test Circle movement:           should       [2.75,4,0.75] is :", circle.pos.x1,circle.pos.x2,circle.pos.x3);
+
+if(!circle.pos.compare_exact(new Vector2d(2.625,3.75,0.625))){error_count++; throw new Error('Circle movement error')};
+console.log("Test Circle movement:           should       [2.625,3.75,0.625] is :", circle.pos.x1,circle.pos.x2,circle.pos.x3);
 
 gravity.on(phys_objs,"earth"); //turn gravity on !
 console.log(gravity.acc);

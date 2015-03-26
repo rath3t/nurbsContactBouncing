@@ -1,3 +1,4 @@
+
 ////////predefined 
 var knotvec_circ = [0,0,0,0.25,0.25,0.5,0.5,0.75,0.75,1,1,1]; //knotvec_circ and ptsweights_circ hold true for ellipses
 var ptsweights_circ = [1, 0.70710678118, 1, 0.70710678118, 1, 0.70710678118,1,0.70710678118,1];
@@ -7,6 +8,8 @@ var ptsweights_circ = [1, 0.70710678118, 1, 0.70710678118, 1, 0.70710678118,1,0.
 
 //memory variables
 var isGravityOn = false;
+
+
 
 
 var Gravity =function(){
@@ -54,14 +57,124 @@ var move_phys_objs =function(phys_obj_array){
 }
 
 var collisionHandler = function(){
-	//process all distances between phys_objs
-	//collision yes,no -> consequences
-	//update positons/speed/acc
+	this.ignore_memory = [];
+	for (var i = 0; i < phys_obj_array.length; i++) {
+		inner: for (var j = i+1; j < phys_obj_array.length; j++) {
+			if(this.ignore_memory[i][j]=true){
+				break inner;
+			}
+			var intersect = verb.geom.Intersect.curves( phys_obj_array[i].nurbsData, phys_obj_array[j].nurbsData, 1e-10 );
 
-	//if collision with obstacle then 
-	//	calc simplified collision consequenses
-	//else 
-	// normal calculation
+			if(intersect==0) {
+                break inner;
+       	 	}else if(intersect.length>=2){
+           		//pass objs to this.preProcessorCollision
+           		//pass objs and intersect to this.calcConsequences
+           	}else{
+          		//pass objs to this.preProcessorCollision
+          		//pass objs and intersect to this.calcConsequences
+       	 	}
+		}
+	}
+	this.preProcessorCollision = function(obj_0,obj_1,i,j){
+		this.coll_flags = []; //collision flags
+		this.coll_flags["Environment"] = [false,false]; //flags for collision behavior of the objects
+		this.coll_flags["Circle"] = [false,false];
+		this.coll_flags["Ellipse"] = [false,false];
+
+		if (obj_0 instanceof Environment){
+			this.coll_flags["Environment"][0] = true;
+			if(obj_1 instanceof Environment){
+				this.coll_flags["Environment"][1] = true;
+				this.ignore_memory[i][j]=true;
+			}
+
+		}else if(obj_0 instanceof Circle){
+				this.coll_flags["Circle"][0] = true;
+				this.ignore_memory[i][j]=false;
+
+		}else if(obj_0 instanceof Ellipse){
+				this.coll_flags["Ellipse"][0] = true;
+				this.ignore_memory[i][j]=false;
+		}
+
+		if (obj_1 instanceof Environment){
+			this.coll_flags["Environment"][1] = true;
+
+		}else if(obj_1 instanceof Circle){
+				this.coll_flags["Circle"][1] = true;
+				this.ignore_memory[i][j]=false;
+
+		}else if(obj_1 instanceof Ellipse){
+				this.coll_flags["Ellipse"][1] = true;
+				this.ignore_memory[i][j]=false;
+		}
+	}
+	this.calcConsequences = function(obj_0,obj_1,intersect){
+		var obj0 = obj_0.shape;
+		var obj1 = obj_1.shape;
+		var param0 = obj0.closestParam(intersect);
+		var param1 = obj1.closestParam(intersect);
+        var coll_tangent0 = obj0.tangent(param0);
+        var coll_tangent1 = obj1.tangent(param1);
+        //calc arithmetically averaged collision normal
+        //convert array to vector
+        var collt0 = convertArray2Vector(coll_tangent0);
+        var collt1 = convertArray2Vector(coll_tangent1);
+
+        var colltFinal = biSectorVector(collt0,collt1);
+        //normal vecto of colltFinal :
+        var normal_vec = colltFinal.normal_vec();
+        var angle_coll = Math.atan(colltFinal[1]/colltFinal[0]);
+
+
+		if(this.coll_flags["Environment"][0]){
+			if(this.coll_flags["Circle"][1]){
+				//calc environment vs. circle
+				var origin = new Vector2d(0,0,0);
+        		var trans_speed1 = obj_1.speed.rotate(angle_coll,origin);
+
+        		var trans_speed_new= new Vector2d(0,0,0);
+
+                trans_speed_new.x1 = -trans_speed1.x1*e;
+                trans_speed_new.x2 = trans_speed1.x2; //stays without friction
+                //trans_speed_new[2] = 0; //stays zero, rotation doesnt matter without friction
+                
+                //convert speeds back to global directions
+               	obj_1.speed = trans_speed_new.inv_rotate(angle_coll,origin);
+               	//correction of penetration of the physical objects due to the finite small time tick
+               	//
+               	var correction = 0.01; //maybe calculate correction value from relative speeds of objects
+                obj_1.pos = obj_1.pos.add(normal_vec.multi_scalar(correction))
+
+			}else if(this.coll_flags["Ellipse"][1]){
+				//calc environment vs. ellipse
+			}
+
+		}else if(this.coll_flags["Circle"][0]){
+			if(this.coll_flags["Environment"][1]){
+				//calc circle vs. enviroment
+			}else if(this.coll_flags["Ellipse"][1]){
+				//calc circle vs. ellipse
+			}else if(this.coll_flags["Circle"][1]){
+				//calc circle vs. circle
+			}
+
+		}else if(this.coll_flags["Ellipse"][0]){
+			if(this.coll_flags["Environment"][1]){
+				//calc ellipse vs. enviroment
+			}else if(this.coll_flags["Circle"][1]){
+				//calc ellipse vs. circle
+			}else if(this.coll_flags["Ellipse"][1]){
+				//calc ellipse vs. ellipse
+			}
+		}
+
+	}
+	this.ignoreCollision = function(i,j){
+		this.ignore_memory[i][j]=true;
+	}
+
 }
 
 var Phys_obj = function(pos,mass,speed,acc,center){
@@ -76,6 +189,10 @@ var Phys_obj = function(pos,mass,speed,acc,center){
 		controlpoints: 0,
 		weights: 0
 	}; //every shape is generated with NURBS basic functions //shapeData: [knotvec, controlpoints,weights]
+	this.material = {
+		e: 0//,
+		//mue: 0 (friction)
+	}; 
 	
 	this.generateNurbsData = function() { //convert shapeData to verb nurbsData
 		this.nurbsData = new verb.core.NurbsCurveData(this.shapeData.degree,this.shapeData.knotvec.slice(),verb.core.Eval.homogenize1d(this.shapeData.controlpoints,this.shapeData.weights));
@@ -90,7 +207,7 @@ var Phys_obj = function(pos,mass,speed,acc,center){
 }
 
 
-var Circle = function(radius,pos,mass){
+var Circle = function(radius,pos,mass,material){
 	this.radius = checkandYield(radius,"radius");
 	this.__proto__.pos 	= pos;
 	this.center = new Vector2d(this.pos.x1+this.radius,this.pos.x2+this.radius,0);
@@ -98,6 +215,8 @@ var Circle = function(radius,pos,mass){
 	this.shapeData.degree = 2;
 	this.shapeData.knotvec = knotvec_circ;
 	this.shapeData.weights = ptsweights_circ;
+	this.material.e = material[0];
+	
 	this.generate_circle_cpts = function(){
 		var p1b= [this.pos.x1,                this.pos.x2+this.radius,     0];
         var p2b= [this.pos.x1,                this.pos.x2,                 0]; 
@@ -113,6 +232,8 @@ var Circle = function(radius,pos,mass){
         return ptsb;
 	}
 	this.shapeData.controlpoints = this.generate_circle_cpts();
+	this.generateNurbsData();
+	this.generateShape();
 }
 
 
@@ -120,7 +241,7 @@ var Circle = function(radius,pos,mass){
 Circle.prototype = new Phys_obj;
 Circle.prototype.constructor = Circle;
 
-var Ellipse = function(x1axis,x2axis,pos,mass){
+var Ellipse = function(x1axis,x2axis,pos,mass,material){
 	this.x1axis = checkandYield(x1axis,"x1axis");
 	this.x2axis = checkandYield(x2axis,"x2axis");
 	this.pos 	= checkandYield(pos,"pos");
@@ -130,6 +251,8 @@ var Ellipse = function(x1axis,x2axis,pos,mass){
 	this.shapeData.degree = 2;
 	this.shapeData.knotvec = knotvec_circ;
 	this.shapeData.weights = ptsweights_circ;
+	this.material.e = material[0];
+
 	this.generate_circle_cpts = function(){
 		var p1b= new Vector2d(this.pos.x1,                this.pos.x2+this.x2axis,     0);
         var p2b= new Vector2d(this.pos.x1,                this.pos.x2,                 0); 
@@ -150,6 +273,9 @@ var Ellipse = function(x1axis,x2axis,pos,mass){
         return ptsb;
 	}
 	this.shapeData.controlpoints = this.generate_circle_cpts();
+
+	this.generateNurbsData();
+	this.generateShape();
 }
 
 
