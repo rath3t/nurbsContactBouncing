@@ -9,17 +9,21 @@ var ptsweights_circ = [1, 0.70710678118, 1, 0.70710678118, 1, 0.70710678118,1,0.
 //memory variables
 var isGravityOn = false;
 
-
+var Material = function(e,mue){
+	this.e = e;
+	this.mue = mue;
+}
 
 
 var Gravity =function(){
 	this.acc = 0;
 	this.acc_def = "space";
-	this.global_on = function(phys_obj_array,planet){
-
+	this.isGravityOn = false;
+	this.on = function(phys_obj_array,planet){
 		if(planet=="earth"){
 			this.acc = -9.81;
 			this.acc_def = "earth";
+			isGravityOn
 		}else if(planet=="moon"){
 			this.acc = -1.622;
 			this.acc_def = "moon";
@@ -28,18 +32,19 @@ var Gravity =function(){
 			this.acc_def = "custom";
 		}
 
-		if(!isGravityOn){
+		if(!isGravityOn || isGravityOn === undefined){
 			for (var i = 0; i < phys_obj_array.length; i++) {
-				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 +this.acc;
-				isGravityOn = true;
+				//console.log(phys_obj_array[i].acc.x2, " + ", this.acc);
+				(phys_obj_array[i]).acc.x2 =(phys_obj_array[i]).acc.x2 +this.acc;
+				this.isGravityOn = true;
 			}
 		}
 	}
 	this.off = function(phys_obj_array){
 		if(isGravityOn){
 			for (var i = 0; i < phys_obj_array.length; i++) {
-				phys_obj_array[i].acc.x2 =phys_obj_array[i].acc.x2 -this.acc;
-				isGravityOn = false;
+				(phys_obj_array[i]).acc.x2 =(phys_obj_array[i]).acc.x2 -this.acc;
+				this.isGravityOn = false;
 				this.acc_def = "space";
 
 			}
@@ -136,7 +141,7 @@ var collisionHandler = function(){
 
         		var trans_speed_new= new Vector2d(0,0,0);
 
-                trans_speed_new.x1 = -trans_speed1.x1*e;
+                trans_speed_new.x1 = -trans_speed1.x1*obj_1.material.e;
                 trans_speed_new.x2 = trans_speed1.x2; //stays without friction
                 //trans_speed_new[2] = 0; //stays zero, rotation doesnt matter without friction
                 
@@ -189,10 +194,7 @@ var Phys_obj = function(pos,mass,speed,acc,center){
 		controlpoints: 0,
 		weights: 0
 	}; //every shape is generated with NURBS basic functions //shapeData: [knotvec, controlpoints,weights]
-	this.material = {
-		e: 0//,
-		//mue: 0 (friction)
-	}; 
+	this.material = new Material(0,0);
 	
 	this.generateNurbsData = function() { //convert shapeData to verb nurbsData
 		this.nurbsData = new verb.core.NurbsCurveData(this.shapeData.degree,this.shapeData.knotvec.slice(),verb.core.Eval.homogenize1d(this.shapeData.controlpoints,this.shapeData.weights));
@@ -215,7 +217,7 @@ var Circle = function(radius,pos,mass,material){
 	this.shapeData.degree = 2;
 	this.shapeData.knotvec = knotvec_circ;
 	this.shapeData.weights = ptsweights_circ;
-	this.material.e = material[0];
+	this.material = checkandYield(material,"Material");
 	
 	this.generate_circle_cpts = function(){
 		var p1b= [this.pos.x1,                this.pos.x2+this.radius,     0];
@@ -244,14 +246,14 @@ Circle.prototype.constructor = Circle;
 var Ellipse = function(x1axis,x2axis,pos,mass,material){
 	this.x1axis = checkandYield(x1axis,"x1axis");
 	this.x2axis = checkandYield(x2axis,"x2axis");
-	this.pos 	= checkandYield(pos,"pos");
+	this.__proto__.pos 	= checkandYield(pos,"pos");
 	this.mass   = checkandYield(mass,"mass");
 	this.center = new Vector2d(this.pos.x1+this.x1axis,this.pos.x2+this.x2axis,0);
 	this.massIntertia = 2;//this.mass*()
 	this.shapeData.degree = 2;
 	this.shapeData.knotvec = knotvec_circ;
 	this.shapeData.weights = ptsweights_circ;
-	this.material.e = material[0];
+	this.material = checkandYield(material,"Material");
 
 	this.generate_circle_cpts = function(){
 		var p1b= new Vector2d(this.pos.x1,                this.pos.x2+this.x2axis,     0);
