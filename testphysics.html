@@ -60,6 +60,7 @@ console.log("------------Gravity acceleration is: " ,gravity.acc, "-------------
 move_phys_objs(phys_objs);
 if(!circle.pos.compare_exact(new Vector2d(3.5,4.25,1.5))){error_count++; throw new Error('Circle gravity/movement error')};
 console.log("Test Gravity:           should       [3.5,4.25,1.5] is :", circle.pos.x1,circle.pos.x2,circle.pos.x3);
+
 console.log("Test Collision circle vs. env.:           should       [3.5,4.25,1.5] is :", circle.pos.x1,circle.pos.x2,circle.pos.x3);
 
 console.log("--------------------------------------------------------")

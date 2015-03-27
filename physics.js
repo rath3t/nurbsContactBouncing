@@ -238,10 +238,26 @@ var Circle = function(radius,pos,mass,material){
 	this.generateShape();
 }
 
-
-
 Circle.prototype = new Phys_obj;
 Circle.prototype.constructor = Circle;
+
+var Environment = function(degree,knotvec,cpt,weights){
+	this.shapeData = {
+		degree: degree,
+		knotvec: knotvec,
+		cpt: cpt,
+		weights: weights
+	};
+	this.generateShape = function(){
+		if (!(degree === undefined) && !(knotvec === undefined) && !(cpt === undefined) && !(weights === undefined)) {
+			this.shape = verb.geom.NurbsCurve.byKnotsControlPointsWeights(degree, knotvec,cpt ,weights );
+		}else if(!(degree === undefined) && !(knotvec === undefined) && !(cpt === undefined) && weights === undefined) {
+			this.shape = verb.geom.NurbsCurve.byKnotsControlPointsWeights(degree, knotvec,cpt);
+		}
+	}
+	this.generateNurbsData = function() { //convert shapeData to verb nurbsData
+		this.nurbsData = 
+}
 
 var Ellipse = function(x1axis,x2axis,pos,mass,material){
 	this.x1axis = checkandYield(x1axis,"x1axis");
