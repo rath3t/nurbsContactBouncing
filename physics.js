@@ -35,8 +35,10 @@ var Gravity =function(){
 		if(!isGravityOn || isGravityOn === undefined){
 			for (var i = 0; i < phys_obj_array.length; i++) {
 				//console.log(phys_obj_array[i].acc.x2, " + ", this.acc);
-				(phys_obj_array[i]).acc.x2 =(phys_obj_array[i]).acc.x2 +this.acc;
-				this.isGravityOn = true;
+				if(!(phys_obj_array[i] instanceof Environment)){
+					(phys_obj_array[i]).acc.x2 =(phys_obj_array[i]).acc.x2 +this.acc;
+					this.isGravityOn = true;
+				}
 			}
 		}
 	}
@@ -57,62 +59,59 @@ var Gravity =function(){
 
 var move_phys_objs =function(phys_obj_array){
 	for (var i = 0; i < phys_obj_array.length; i++) {
-		phys_obj_array[i].move();
+		if(!(phys_obj_array[i] instanceof Environment)){
+			phys_obj_array[i].move();
+			console.log("Position: ", phys_obj_array[i].pos, i);
+			console.log("Speed: ", phys_obj_array[i].speed, i);
+
+			phys_obj_array[i].update();
+		}
 	};
 }
 
-var collisionHandler = function(){
-	this.ignore_memory = [];
-	for (var i = 0; i < phys_obj_array.length; i++) {
-		inner: for (var j = i+1; j < phys_obj_array.length; j++) {
-			if(this.ignore_memory[i][j]=true){
-				break inner;
-			}
-			var intersect = verb.geom.Intersect.curves( phys_obj_array[i].nurbsData, phys_obj_array[j].nurbsData, 1e-10 );
+var CollisionHandler = function(){
+	this.ignore_memory = [[],[],[]]; //ignore collision env vs. env
+	this.preP_memory   = []; //only execute this.preProcessorCollision once -> prepP[i][j]= true;
+ 	this.coll_flags = [];
+	this.coll_flags["Environment"] = [false,false]; //flags for collision behavior of the objects
+	this.coll_flags["Circle"] = [false,false];
+	this.coll_flags["Ellipse"] = [false,false];
 
-			if(intersect==0) {
-                break inner;
-       	 	}else if(intersect.length>=2){
-           		//pass objs to this.preProcessorCollision
-           		//pass objs and intersect to this.calcConsequences
-           	}else{
-          		//pass objs to this.preProcessorCollision
-          		//pass objs and intersect to this.calcConsequences
-       	 	}
-		}
-	}
-	this.preProcessorCollision = function(obj_0,obj_1,i,j){
-		this.coll_flags = []; //collision flags
-		this.coll_flags["Environment"] = [false,false]; //flags for collision behavior of the objects
-		this.coll_flags["Circle"] = [false,false];
-		this.coll_flags["Ellipse"] = [false,false];
+	this.preProcessorCollision = function(obj_0,obj_1,i,j){ //collision flags
+		
 
 		if (obj_0 instanceof Environment){
 			this.coll_flags["Environment"][0] = true;
 			if(obj_1 instanceof Environment){
 				this.coll_flags["Environment"][1] = true;
 				this.ignore_memory[i][j]=true;
+				this.preP_memory[i][j]=true;
 			}
 
 		}else if(obj_0 instanceof Circle){
 				this.coll_flags["Circle"][0] = true;
 				this.ignore_memory[i][j]=false;
+				this.preP_memory[i][j]=true;
 
 		}else if(obj_0 instanceof Ellipse){
 				this.coll_flags["Ellipse"][0] = true;
 				this.ignore_memory[i][j]=false;
+				this.preP_memory[i][j]=true;
 		}
 
 		if (obj_1 instanceof Environment){
 			this.coll_flags["Environment"][1] = true;
+			this.preP_memory[i][j]=true;
 
 		}else if(obj_1 instanceof Circle){
 				this.coll_flags["Circle"][1] = true;
 				this.ignore_memory[i][j]=false;
+				this.preP_memory[i][j]=true;
 
 		}else if(obj_1 instanceof Ellipse){
 				this.coll_flags["Ellipse"][1] = true;
 				this.ignore_memory[i][j]=false;
+				this.preP_memory[i][j]=true;
 		}
 	}
 	this.calcConsequences = function(obj_0,obj_1,intersect){
@@ -179,14 +178,38 @@ var collisionHandler = function(){
 	this.ignoreCollision = function(i,j){
 		this.ignore_memory[i][j]=true;
 	}
+	this.init = function (phys_obj_array){
+		for (var i = 0; i < phys_obj_array.length; i++) {
 
+		inner: for (var j = i+1; j < phys_obj_array.length; j++) {
+			if(this.ignore_memory[i][j]=true){
+				break inner;
+			}
+			var intersect = verb.geom.Intersect.curves( phys_obj_array[i].nurbsData, phys_obj_array[j].nurbsData, 1e-10 );
+			if(!this.preP_memory[i][j]){
+					this.preProcessorCollision(phys_obj_array[i],phys_obj_array[j],i,j);
+			}
+			if(intersect==0) {
+                break inner;
+       	 	}else if(intersect.length>=2){
+       	 		
+				var intersect_average = [(intersect[0].point0[0]+intersect[1].point0[0])/2, (intersect[0].point0[1]+intersect[1].point0[1])/2,0]
+				this.calcConsequences(phys_obj_array[i],phys_obj_array[j],intersect_average)
+           		//pass objs and intersect to this.calcConsequences
+           	}else{
+          		var intersect_single = [intersect[0].point0[0], intersect[0].point0[1],0];
+          		this.calcConsequences(phys_obj_array[i],phys_obj_array[j],intersect_single)
+       	 	}
+		}
+	}
+	}
 }
 
 var Phys_obj = function(pos,mass,speed,acc,center){
 	this.pos = pos;  //pos.x1 =x position, pos.x2 =y position, pos.x3 =orientation_angle,
 	this.mass = mass;
-	this.speed = speed; //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
-	this.acc = acc; // acc = [0,0,0]
+	this.speed = speed || new Vector2d(0,0,0); //speed.x1= speed x-direction... speed.x3 = rotation x3 axis
+	this.acc = acc || new Vector2d(0,0,0); // acc = [0,0,0]
 	this.center = center;
 	this.shapeData = {
 		degree: 0,
@@ -205,13 +228,14 @@ var Phys_obj = function(pos,mass,speed,acc,center){
 	this.move = function() { //update pos, speed //x3 values are rotationvalues
 		this.pos = this.pos.add((this.speed.multi_scalar(tick)).add(this.acc.multi_scalar(0.5*Math.pow(tick,2))));//this.shape = new verb.geom.NurbsCurve(this.nurbsData);
 		this.speed = this.speed.add(this.acc.multi_scalar(tick));
+
 	}
 }
 
 
 var Circle = function(radius,pos,mass,material){
 	this.radius = checkandYield(radius,"radius");
-	this.__proto__.pos 	= pos;
+	this.pos 	= pos;
 	this.center = new Vector2d(this.pos.x1+this.radius,this.pos.x2+this.radius,0);
 	this.mass   = checkandYield(mass,"mass");
 	this.shapeData.degree = 2;
@@ -219,7 +243,7 @@ var Circle = function(radius,pos,mass,material){
 	this.shapeData.weights = ptsweights_circ;
 	this.material = checkandYield(material,"Material");
 	
-	this.generate_circle_cpts = function(){
+	this.generateCpts = function(){
 		var p1b= [this.pos.x1,                this.pos.x2+this.radius,     0];
         var p2b= [this.pos.x1,                this.pos.x2,                 0]; 
         var p3b= [this.pos.x1+this.radius,    this.pos.x2,                 0]; 
@@ -233,36 +257,53 @@ var Circle = function(radius,pos,mass,material){
 
         return ptsb;
 	}
-	this.shapeData.controlpoints = this.generate_circle_cpts();
+	this.shapeData.controlpoints = this.generateCpts();
 	this.generateNurbsData();
 	this.generateShape();
+	this.update = function(){
+		this.shapeData.controlpoints = this.generateCpts();
+		this.generateNurbsData();
+		this.generateShape();
+	}
 }
 
 Circle.prototype = new Phys_obj;
 Circle.prototype.constructor = Circle;
 
-var Environment = function(degree,knotvec,cpt,weights){
-	this.shapeData = {
-		degree: degree,
-		knotvec: knotvec,
-		cpt: cpt,
-		weights: weights
-	};
-	this.generateShape = function(){
-		if (!(degree === undefined) && !(knotvec === undefined) && !(cpt === undefined) && !(weights === undefined)) {
+var Environment = function(degree,cpt,knotvec,weights){
+		this.shapeData = {
+			degree: degree,
+			knotvec: knotvec,
+			cpt: cpt,
+			weights: weights
+		};
+	
+	this.generateShapeWith4Args = function(){ // generates classic nurbs curve with controlpoints etc.
+		if (!(weights === undefined)) {
 			this.shape = verb.geom.NurbsCurve.byKnotsControlPointsWeights(degree, knotvec,cpt ,weights );
-		}else if(!(degree === undefined) && !(knotvec === undefined) && !(cpt === undefined) && weights === undefined) {
+		}else if(weights === undefined) {
 			this.shape = verb.geom.NurbsCurve.byKnotsControlPointsWeights(degree, knotvec,cpt);
 		}
 	}
-	this.generateNurbsData = function() { //convert shapeData to verb nurbsData
-		this.nurbsData = 
+	this.generateShapeWith2Args = function(){ //generates curve by points on the curve
+		this.shape = verb.geom.NurbsCurve.byPoints( cpt, degree );
+	}
+	this.generateNurbsData = function() {
+		this.nurbsData = this.shape.asNurbs();
+	}
+
+	if(arguments.length==4 || arguments.length==3){
+		this.generateShapeWith4Args();
+	}else if (arguments.length == 2){
+		this.generateShapeWith2Args();
+	}
+	this.generateNurbsData();
 }
 
 var Ellipse = function(x1axis,x2axis,pos,mass,material){
 	this.x1axis = checkandYield(x1axis,"x1axis");
 	this.x2axis = checkandYield(x2axis,"x2axis");
-	this.__proto__.pos 	= checkandYield(pos,"pos");
+	this.pos 	= checkandYield(pos,"pos");
 	this.mass   = checkandYield(mass,"mass");
 	this.center = new Vector2d(this.pos.x1+this.x1axis,this.pos.x2+this.x2axis,0);
 	this.massIntertia = 2;//this.mass*()
@@ -271,7 +312,7 @@ var Ellipse = function(x1axis,x2axis,pos,mass,material){
 	this.shapeData.weights = ptsweights_circ;
 	this.material = checkandYield(material,"Material");
 
-	this.generate_circle_cpts = function(){
+	this.generateCpts = function(){
 		var p1b= new Vector2d(this.pos.x1,                this.pos.x2+this.x2axis,     0);
         var p2b= new Vector2d(this.pos.x1,                this.pos.x2,                 0); 
         var p3b= new Vector2d(this.pos.x1+this.x1axis,    this.pos.x2,                 0); 
@@ -290,16 +331,24 @@ var Ellipse = function(x1axis,x2axis,pos,mass,material){
         // convert ptsb[i] from Vector2d to Array
         return ptsb;
 	}
-	this.shapeData.controlpoints = this.generate_circle_cpts();
+
+	this.shapeData.controlpoints = this.generateCpts();
 
 	this.generateNurbsData();
 	this.generateShape();
+	this.update = function(){
+		this.shapeData.controlpoints = this.generateCpts();
+		this.generateNurbsData();
+		this.generateShape();
+	}
 }
 
 
 
 Ellipse.prototype = new Phys_obj;
 Ellipse.prototype.constructor = Ellipse;
+
+
 
 //Ellipse = function... proto = phys_obj
 

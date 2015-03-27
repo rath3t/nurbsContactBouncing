@@ -15,6 +15,7 @@
 var tick	= 0.5; //testing
 var pos = new Vector2d(2,3,0);
 var pos2 = new Vector2d(4,5,0);
+var pos3 = new Vector2d(0,5,0);
 var speed = new Vector2d(1,1,1);
 var acc = new Vector2d(1,3,1);
 var acc2 = new Vector2d(1,1,1);
@@ -22,25 +23,36 @@ var acc2 = new Vector2d(1,1,1);
 var phys_objs = [];
 var mat = new Material(0.8,0);
 var circle = new Circle(2,pos,10,mat);
+var circle2 = new Circle(1,pos3,10,mat);
+
+ var p1a = [-5,0,0], p2a = [0,0,0], p3a = [5,0,0];
+    var ptsa = [p1a, p2a, p3a];
+
+var floor = new Environment(1,ptsa);
+
+
 
 circle.speed = speed;
 circle.acc =acc;
 
 phys_objs.push(circle);
+phys_objs.push(circle2);
 
 var ellipse = new Ellipse(2,1,pos2,10,mat)
 ellipse.speed = speed;
 ellipse.acc =acc2;
 
 phys_objs.push(ellipse);
+phys_objs.push(floor);
 
 var gravity = new Gravity();
-
+var collision_handler = new CollisionHandler();
 
 var t = circle instanceof Circle;
 
 
 var s = circle instanceof Phys_obj;
+//console.log(s,t,circle.pos,circle2.pos);
 
 //circle.rotate();
 var error_count = 0;
@@ -66,6 +78,12 @@ console.log("Test Collision circle vs. env.:           should       [3.5,4.25,1.
 console.log("--------------------------------------------------------")
 console.log("---------------"+ error_count +" errors found in physics.js-------------")
 console.log("--------------------------------------------------------")
+
+
+//Testing functions:
+
+
+
 
 </script>
 
