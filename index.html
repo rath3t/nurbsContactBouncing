@@ -36,7 +36,7 @@
 
     //generate obstacle
     
-    var p1a = [-5,-1,0], p2a = [0,-5,0], p3a = [5,5,0], p4a = [10,-1,0], p5a = [-5, -1, 0];
+    var p1a = [-5,-1,0], p2a = [0,5,0], p3a = [5,5,0], p4a = [10,-1,0], p5a = [-5, -1, 0];
     var ptsa = [p1a, p2a, p3a, p4a, p5a];
 
     var curve1 = verb.geom.NurbsCurve.byPoints( ptsa, 3 );
@@ -44,10 +44,10 @@
     addCurveToScene( curve1.toThreeGeometry() );
 
     var init = function() {
-       //scene.remove(scene.children[5]);
-      // scene.remove(scene.children[7]);
-       //scene.remove(scene.children[8]);
-       //scene.remove(scene.children[9]);
+       scene.remove(scene.children[5]);
+      scene.remove(scene.children[7]);
+       scene.remove(scene.children[8]);
+       scene.remove(scene.children[9]);
     //renderer.deallocateObject( obj );
         //test distance between ball and obstacle
         var center= [ball1.x+ball1.axis_x,ball1.y+ball1.axis_y];
@@ -267,7 +267,10 @@
 
                 var param = curve1.closestParam(intersect);
                 console.log("Beruehrungspunkt:",intersect);
+                console.log("Beruehrungspunktgeschw.:",this.speed);
                 var coll_tangent = curve1.tangent(param);
+                coll_tangent[0] = -coll_tangent[0];
+                coll_tangent[1] = -coll_tangent[1];
                 if(coll_tangent[1]<0 && coll_tangent[0]>0){
                     console.log("1")
                     var normal_tang = [-coll_tangent[1]/coll_tangent[0],1]; 
@@ -332,14 +335,14 @@
                 console.log("x_Abstand: ",x_dis,"Center:", center);
                 trans_speed_new[0] = trans_speed[0]-s/this.mass;
                 trans_speed_new[1] = trans_speed[1];
-                if(coll_tangent[0]>0 && coll_tangent[1]>0){
-                    trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
-                }else if(coll_tangent[0]<0 && coll_tangent[1]<0){
-                    trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
-                }
+                //if(coll_tangent[0]>0 && coll_tangent[1]>0){
+                 //   trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
+                //}else if(coll_tangent[0]<0 && coll_tangent[1]<0){
+                    //trans_speed_new[2] = this.speed[2]-s*x_dis/massInertia;
+                //}
                 console.log("Ungedrehte geschw.: ", trans_speed_new);
                 //convert speeds back to global directions
-                this.speed = transformation(angle_coll,trans_speed_new);
+                this.speed = inv_transformation(angle_coll,trans_speed_new);
                 console.log("Geschwindigkeitsvektor: ", this.speed);
                 this.x  = this.x+correction*normalised_normal_tang[0];
                 this.y  = this.y+correction*normalised_normal_tang[1];
@@ -349,7 +352,7 @@
     }
     //var ball1 = new Ball(4,6,10,1,[0,0]);
     
-    var ball1 = new Ellipse(-5,1,100,1,2,[0,0,0],0);
+    var ball1 = new Ellipse(4,0,100,1,1,[0,0,0],0);
     function timestamp() {
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     };
@@ -376,7 +379,7 @@
         };
 var now =0;
 var last =0;
-tick=1/100;
+tick=1/200;
     function threeRender(){
         var controls = new THREE.OrbitControls(camera, renderer.domElement);
         function render() {
